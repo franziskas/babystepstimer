@@ -40,12 +40,16 @@ public class BabystepsTimer {
     private static DecimalFormat twoDigitsFormat = new DecimalFormat("00");
 
     public static void main(final String[] args) throws InterruptedException {
-        timerFrame = new JFrame("Babysteps Timer");
+        new BabystepsTimer().execute();
+    }
+
+    public void execute() {
+        timerFrame = getJFrame();
         timerFrame.setUndecorated(true);
 
         timerFrame.setSize(250, 120);
         timerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        timerPane = new JTextPane();
+        timerPane = getJTextPane();
         timerPane.setContentType("text/html");
         timerPane.setText(createTimerHtml(getRemainingTimeCaption(0L), BACKGROUND_COLOR_NEUTRAL, false));
         timerPane.setEditable(false);
@@ -96,6 +100,14 @@ public class BabystepsTimer {
         timerFrame.getContentPane().add(timerPane);
 
         timerFrame.setVisible(true);
+    }
+
+    protected JTextPane getJTextPane() {
+        return new JTextPane();
+    }
+
+    protected JFrame getJFrame() {
+        return new JFrame("Babysteps Timer");
     }
 
     private static String getRemainingTimeCaption(final long elapsedTime) {
