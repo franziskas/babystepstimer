@@ -24,7 +24,7 @@ import java.awt.event.MouseMotionListener;
 import java.text.DecimalFormat;
 
 public class BabystepsTimer {
-    private static final String BACKGROUND_COLOR_NEUTRAL = "#ffffff";
+    public static final String BACKGROUND_COLOR_NEUTRAL = "#ffffff";
     private static final String BACKGROUND_COLOR_FAILED = "#ffcccc";
     private static final String BACKGROUND_COLOR_PASSED = "#ccffcc";
 
@@ -32,10 +32,10 @@ public class BabystepsTimer {
 
     private static JFrame timerFrame;
     private static JTextPane timerPane;
-    private static boolean timerRunning;
-    private static long currentCycleStartTime;
+    public static boolean timerRunning;
+    public static long currentCycleStartTime;
     private static String lastRemainingTime;
-    private static String bodyBackgroundColor = BACKGROUND_COLOR_NEUTRAL;
+    public static String bodyBackgroundColor = BACKGROUND_COLOR_NEUTRAL;
 
     private static DecimalFormat twoDigitsFormat = new DecimalFormat("00");
 
@@ -69,7 +69,7 @@ public class BabystepsTimer {
                         timerFrame.setAlwaysOnTop(true);
                         timerPane.setText(createTimerHtml(getRemainingTimeCaption(0L), BACKGROUND_COLOR_NEUTRAL, true));
                         timerFrame.repaint();
-                        new TimerThread().start();
+                        getTimerThread().start();
                     } else if ("command://stop".equals(e.getDescription())) {
                         timerRunning = false;
                         timerFrame.setAlwaysOnTop(false);
@@ -84,6 +84,10 @@ public class BabystepsTimer {
                 }
             }
         };
+    }
+
+    protected TimerThread getTimerThread() {
+        return new TimerThread();
     }
 
     protected MouseMotionListener getMouseMotionListener() {
@@ -159,7 +163,7 @@ public class BabystepsTimer {
         }).start();
     }
 
-    private static final class TimerThread extends Thread {
+    public static class TimerThread extends Thread {
         @Override
         public void run() {
             timerRunning = true;
