@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkListener;
+import java.awt.event.MouseMotionListener;
 
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
@@ -24,6 +26,10 @@ public class BabystepsTimerShould {
     private JTextPane timerPane;
     @Mock
     private java.awt.Container contentPane;
+    @Mock
+    private MouseMotionListener mouseMotionListener;
+    @Mock
+    private HyperlinkListener hyperlinkListener;
 
     private BabystepsTimer babystepsTimer;
 
@@ -40,6 +46,16 @@ public class BabystepsTimerShould {
             @Override
             protected JTextPane getJTextPane() {
                 return timerPane;
+            }
+
+            @Override
+            protected MouseMotionListener getMouseMotionListener() {
+                return mouseMotionListener;
+            }
+
+            @Override
+            protected HyperlinkListener getHyperlinkListener() {
+                return hyperlinkListener;
             }
         };
     }
@@ -58,6 +74,8 @@ public class BabystepsTimerShould {
         executionOrder.verify(timerPane).setContentType("text/html");
         executionOrder.verify(timerPane).setText(FIRST_CONTENT);
         executionOrder.verify(timerPane).setEditable(false);
+        executionOrder.verify(timerPane).addMouseMotionListener(mouseMotionListener);
+        executionOrder.verify(timerPane).addHyperlinkListener(hyperlinkListener);
         executionOrder.verify(contentPane).add(timerPane);
         executionOrder.verify(timerFrame).setVisible(true);
     }

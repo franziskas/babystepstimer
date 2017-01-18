@@ -53,28 +53,15 @@ public class BabystepsTimer {
         timerPane.setContentType("text/html");
         timerPane.setText(createTimerHtml(getRemainingTimeCaption(0L), BACKGROUND_COLOR_NEUTRAL, false));
         timerPane.setEditable(false);
-        timerPane.addMouseMotionListener(new MouseMotionListener() {
-            private int lastX;
-            private int lastY;
+        timerPane.addMouseMotionListener(getMouseMotionListener());
+        timerPane.addHyperlinkListener(getHyperlinkListener());
+        timerFrame.getContentPane().add(timerPane);
 
-            @Override
-            public void mouseMoved(final MouseEvent e) {
-                lastX = e.getXOnScreen();
-                lastY = e.getYOnScreen();
-            }
+        timerFrame.setVisible(true);
+    }
 
-            @Override
-            public void mouseDragged(final MouseEvent e) {
-                int x = e.getXOnScreen();
-                int y = e.getYOnScreen();
-
-                timerFrame.setLocation(timerFrame.getLocation().x + (x - lastX), timerFrame.getLocation().y + (y - lastY));
-
-                lastX = x;
-                lastY = y;
-            }
-        });
-        timerPane.addHyperlinkListener(new HyperlinkListener() {
+    protected HyperlinkListener getHyperlinkListener() {
+        return new HyperlinkListener() {
             @Override
             public void hyperlinkUpdate(final HyperlinkEvent e) {
                 if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
@@ -96,10 +83,31 @@ public class BabystepsTimer {
                     }
                 }
             }
-        });
-        timerFrame.getContentPane().add(timerPane);
+        };
+    }
 
-        timerFrame.setVisible(true);
+    protected MouseMotionListener getMouseMotionListener() {
+        return new MouseMotionListener() {
+            private int lastX;
+            private int lastY;
+
+            @Override
+            public void mouseMoved(final MouseEvent e) {
+                lastX = e.getXOnScreen();
+                lastY = e.getYOnScreen();
+            }
+
+            @Override
+            public void mouseDragged(final MouseEvent e) {
+                int x = e.getXOnScreen();
+                int y = e.getYOnScreen();
+
+                timerFrame.setLocation(timerFrame.getLocation().x + (x - lastX), timerFrame.getLocation().y + (y - lastY));
+
+                lastX = x;
+                lastY = y;
+            }
+        };
     }
 
     protected JTextPane getJTextPane() {
