@@ -1,11 +1,11 @@
 package net.davidtanzer.babysteps;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoRule;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkListener;
@@ -15,10 +15,12 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
+import static org.mockito.junit.MockitoJUnit.rule;
 
-@RunWith(MockitoJUnitRunner.class)
 public class BabystepsTimerShould {
     private static final String FIRST_CONTENT = "<html><body style=\"border: 3px solid #555555; background: #ffffff; margin: 0; padding: 0;\"><h1 style=\"text-align: center; font-size: 30px; color: #333333;\">02:00</h1><div style=\"text-align: center\"><a style=\"color: #555555;\" href=\"command://start\">Start</a> <a style=\"color: #555555;\" href=\"command://quit\">Quit</a> </div></body></html>";
+    @Rule
+    public MockitoRule mockitoRule = rule();
 
     @Mock(answer = RETURNS_DEEP_STUBS)
     private JFrame timerFrame;
@@ -62,7 +64,7 @@ public class BabystepsTimerShould {
 
     @Test
     public void
-    test() {
+    create_application_window() {
         InOrder executionOrder = inOrder(timerFrame, timerPane, contentPane);
 
         babystepsTimer.execute();
