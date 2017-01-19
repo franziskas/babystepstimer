@@ -26,7 +26,7 @@ import java.text.DecimalFormat;
 public class BabystepsTimer {
     public static final String BACKGROUND_COLOR_NEUTRAL = "#ffffff";
     private static final String BACKGROUND_COLOR_FAILED = "#ffcccc";
-    private static final String BACKGROUND_COLOR_PASSED = "#ccffcc";
+    public static final String BACKGROUND_COLOR_PASSED = "#ccffcc";
 
     private static final long SECONDS_IN_CYCLE = 120;
 
@@ -76,7 +76,7 @@ public class BabystepsTimer {
                         timerPane.setText(createTimerHtml(getRemainingTimeCaption(0L), BACKGROUND_COLOR_NEUTRAL, false));
                         timerFrame.repaint();
                     } else if ("command://reset".equals(e.getDescription())) {
-                        currentCycleStartTime = System.currentTimeMillis();
+                        currentCycleStartTime = getCurrentTime();
                         bodyBackgroundColor = BACKGROUND_COLOR_PASSED;
                     } else if ("command://quit".equals(e.getDescription())) {
                         System.exit(0);
@@ -84,6 +84,10 @@ public class BabystepsTimer {
                 }
             }
         };
+    }
+
+    protected long getCurrentTime() {
+        return System.currentTimeMillis();
     }
 
     protected TimerThread getTimerThread() {

@@ -29,6 +29,7 @@ import static org.mockito.junit.MockitoJUnit.rule;
 public class HyperlinkListenerCreatorShould {
     private static final String START_HTML = "<html><body style=\"border: 3px solid #555555; background: #ffffff; margin: 0; padding: 0;\"><h1 style=\"text-align: center; font-size: 30px; color: #333333;\">02:00</h1><div style=\"text-align: center\"><a style=\"color: #555555;\" href=\"command://stop\">Stop</a> <a style=\"color: #555555;\" href=\"command://reset\">Reset</a> <a style=\"color: #555555;\" href=\"command://quit\">Quit</a> </div></body></html>";
     private static final String STOPPED_HTML = "<html><body style=\"border: 3px solid #555555; background: #ffffff; margin: 0; padding: 0;\"><h1 style=\"text-align: center; font-size: 30px; color: #333333;\">02:00</h1><div style=\"text-align: center\"><a style=\"color: #555555;\" href=\"command://start\">Start</a> <a style=\"color: #555555;\" href=\"command://quit\">Quit</a> </div></body></html>";
+    private static final long FIXED_CURRENT_TIME = 12421421L;
 
     @Rule
     public MockitoRule mockitoRule = rule();
@@ -53,6 +54,11 @@ public class HyperlinkListenerCreatorShould {
             @Override
             protected BabystepsTimer.TimerThread getTimerThread() {
                 return timerThread;
+            }
+
+            @Override
+            protected long getCurrentTime() {
+                return FIXED_CURRENT_TIME;
             }
         };
         BabystepsTimer.timerFrame = timerFrame;
@@ -141,5 +147,25 @@ public class HyperlinkListenerCreatorShould {
         assertThat(timerRunning, is(false));
         assertThat(currentCycleStartTime, is(0L));
         assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
+    }
+
+    @Test
+    public void
+    create_hyperlink_listener_when_activated_with_reset_command() {
+        timerRunning = true;
+        currentCycleStartTime = 0L;
+        bodyBackgroundColor = BACKGROUND_COLOR_NEUTRAL;
+        when(hyperlinkEvent.getEventType()).thenReturn(ACTIVATED);
+        when(hyperlinkEvent.getDescription()).thenReturn("command://reset");
+
+        HyperlinkListener hyperlinkListener = babystepsTimer.getHyperlinkListener();
+        hyperlinkListener.hyperlinkUpdate(hyperlinkEvent);
+
+        verifyZeroInteractions(timerFrame);
+        verifyZeroInteractions(timerPane);
+        verifyZeroInteractions(timerThread);
+        assertThat(timerRunning, is(true));
+        assertThat(currentCycleStartTime, is(FIXED_CURRENT_TIME));
+        assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_PASSED));
     }
 }
