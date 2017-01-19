@@ -79,9 +79,17 @@ public class BabystepsTimer {
                         currentCycleStartTime = getCurrentTime();
                         bodyBackgroundColor = BACKGROUND_COLOR_PASSED;
                     } else if ("command://quit".equals(e.getDescription())) {
-                        System.exit(0);
+                        getExitAction().run();
                     }
                 }
+            }
+        };
+    }
+
+    protected Runnable getExitAction() {
+        return new Runnable() {
+            public void run() {
+                System.exit(0);
             }
         };
     }

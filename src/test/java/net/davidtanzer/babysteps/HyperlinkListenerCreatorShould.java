@@ -45,6 +45,8 @@ public class HyperlinkListenerCreatorShould {
     private HyperlinkEvent hyperlinkEvent;
     @Mock
     private BabystepsTimer.TimerThread timerThread;
+    @Mock
+    private Runnable exitAction;
 
     private BabystepsTimer babystepsTimer;
 
@@ -59,6 +61,11 @@ public class HyperlinkListenerCreatorShould {
             @Override
             protected long getCurrentTime() {
                 return FIXED_CURRENT_TIME;
+            }
+
+            @Override
+            protected Runnable getExitAction() {
+                return exitAction;
             }
         };
         BabystepsTimer.timerFrame = timerFrame;
@@ -80,6 +87,7 @@ public class HyperlinkListenerCreatorShould {
         verifyZeroInteractions(timerFrame);
         verifyZeroInteractions(timerPane);
         verifyZeroInteractions(timerThread);
+        verifyZeroInteractions(exitAction);
         assertThat(timerRunning, is(true));
         assertThat(currentCycleStartTime, is(0L));
         assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
@@ -100,6 +108,7 @@ public class HyperlinkListenerCreatorShould {
         verifyZeroInteractions(timerFrame);
         verifyZeroInteractions(timerPane);
         verifyZeroInteractions(timerThread);
+        verifyZeroInteractions(exitAction);
         assertThat(timerRunning, is(true));
         assertThat(currentCycleStartTime, is(0L));
         assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
@@ -122,6 +131,7 @@ public class HyperlinkListenerCreatorShould {
         inOrder.verify(timerPane).setText(START_HTML);
         inOrder.verify(timerFrame).repaint();
         inOrder.verify(timerThread).start();
+        verifyZeroInteractions(exitAction);
         assertThat(timerRunning, is(true));
         assertThat(currentCycleStartTime, is(0L));
         assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
@@ -144,6 +154,7 @@ public class HyperlinkListenerCreatorShould {
         inOrder.verify(timerPane).setText(STOPPED_HTML);
         inOrder.verify(timerFrame).repaint();
         verifyZeroInteractions(timerThread);
+        verifyZeroInteractions(exitAction);
         assertThat(timerRunning, is(false));
         assertThat(currentCycleStartTime, is(0L));
         assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
@@ -164,8 +175,30 @@ public class HyperlinkListenerCreatorShould {
         verifyZeroInteractions(timerFrame);
         verifyZeroInteractions(timerPane);
         verifyZeroInteractions(timerThread);
+        verifyZeroInteractions(exitAction);
         assertThat(timerRunning, is(true));
         assertThat(currentCycleStartTime, is(FIXED_CURRENT_TIME));
         assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_PASSED));
+    }
+
+    @Test
+    public void
+    create_hyperlink_listener_when_activated_with_quit_command() {
+        timerRunning = true;
+        currentCycleStartTime = 0L;
+        bodyBackgroundColor = BACKGROUND_COLOR_NEUTRAL;
+        when(hyperlinkEvent.getEventType()).thenReturn(ACTIVATED);
+        when(hyperlinkEvent.getDescription()).thenReturn("command://quit");
+
+        HyperlinkListener hyperlinkListener = babystepsTimer.getHyperlinkListener();
+        hyperlinkListener.hyperlinkUpdate(hyperlinkEvent);
+
+        verifyZeroInteractions(timerFrame);
+        verifyZeroInteractions(timerPane);
+        verifyZeroInteractions(timerThread);
+        verify(exitAction).run();
+        assertThat(timerRunning, is(true));
+        assertThat(currentCycleStartTime, is(0L));
+        assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
     }
 }
