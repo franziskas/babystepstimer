@@ -27,7 +27,8 @@ import static org.mockito.junit.MockitoJUnit.rule;
 
 @RunWith(Theories.class)
 public class HyperlinkListenerCreatorShould {
-    private static final String TIMER_HTML = "<html><body style=\"border: 3px solid #555555; background: #ffffff; margin: 0; padding: 0;\"><h1 style=\"text-align: center; font-size: 30px; color: #333333;\">02:00</h1><div style=\"text-align: center\"><a style=\"color: #555555;\" href=\"command://stop\">Stop</a> <a style=\"color: #555555;\" href=\"command://reset\">Reset</a> <a style=\"color: #555555;\" href=\"command://quit\">Quit</a> </div></body></html>";
+    private static final String START_HTML = "<html><body style=\"border: 3px solid #555555; background: #ffffff; margin: 0; padding: 0;\"><h1 style=\"text-align: center; font-size: 30px; color: #333333;\">02:00</h1><div style=\"text-align: center\"><a style=\"color: #555555;\" href=\"command://stop\">Stop</a> <a style=\"color: #555555;\" href=\"command://reset\">Reset</a> <a style=\"color: #555555;\" href=\"command://quit\">Quit</a> </div></body></html>";
+    private static final String STOPPED_HTML = "<html><body style=\"border: 3px solid #555555; background: #ffffff; margin: 0; padding: 0;\"><h1 style=\"text-align: center; font-size: 30px; color: #333333;\">02:00</h1><div style=\"text-align: center\"><a style=\"color: #555555;\" href=\"command://start\">Start</a> <a style=\"color: #555555;\" href=\"command://quit\">Quit</a> </div></body></html>";
 
     @Rule
     public MockitoRule mockitoRule = rule();
@@ -42,7 +43,7 @@ public class HyperlinkListenerCreatorShould {
     @Mock
     private HyperlinkEvent hyperlinkEvent;
     @Mock
-    private BabystepsTimer.TimerThread mockedTimerThread;
+    private BabystepsTimer.TimerThread timerThread;
 
     private BabystepsTimer babystepsTimer;
 
@@ -51,7 +52,7 @@ public class HyperlinkListenerCreatorShould {
         babystepsTimer = new BabystepsTimer() {
             @Override
             protected BabystepsTimer.TimerThread getTimerThread() {
-                return mockedTimerThread;
+                return timerThread;
             }
         };
         BabystepsTimer.timerFrame = timerFrame;
@@ -72,7 +73,7 @@ public class HyperlinkListenerCreatorShould {
 
         verifyZeroInteractions(timerFrame);
         verifyZeroInteractions(timerPane);
-        verifyZeroInteractions(mockedTimerThread);
+        verifyZeroInteractions(timerThread);
         assertThat(timerRunning, is(true));
         assertThat(currentCycleStartTime, is(0L));
         assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
@@ -92,7 +93,7 @@ public class HyperlinkListenerCreatorShould {
 
         verifyZeroInteractions(timerFrame);
         verifyZeroInteractions(timerPane);
-        verifyZeroInteractions(mockedTimerThread);
+        verifyZeroInteractions(timerThread);
         assertThat(timerRunning, is(true));
         assertThat(currentCycleStartTime, is(0L));
         assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
@@ -100,8 +101,8 @@ public class HyperlinkListenerCreatorShould {
 
     @Test
     public void
-    create_hyperlink_listener_when_activated_with_start_event() {
-        InOrder inOrder = inOrder(timerFrame, timerPane, mockedTimerThread);
+    create_hyperlink_listener_when_activated_with_start_command() {
+        InOrder inOrder = inOrder(timerFrame, timerPane, timerThread);
         timerRunning = true;
         currentCycleStartTime = 0L;
         bodyBackgroundColor = BACKGROUND_COLOR_NEUTRAL;
@@ -112,10 +113,32 @@ public class HyperlinkListenerCreatorShould {
         hyperlinkListener.hyperlinkUpdate(hyperlinkEvent);
 
         inOrder.verify(timerFrame).setAlwaysOnTop(true);
-        inOrder.verify(timerPane).setText(TIMER_HTML);
+        inOrder.verify(timerPane).setText(START_HTML);
         inOrder.verify(timerFrame).repaint();
-        inOrder.verify(mockedTimerThread).start();
+        inOrder.verify(timerThread).start();
         assertThat(timerRunning, is(true));
+        assertThat(currentCycleStartTime, is(0L));
+        assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
+    }
+
+    @Test
+    public void
+    create_hyperlink_listener_when_activated_with_stop_command() {
+        InOrder inOrder = inOrder(timerFrame, timerPane, timerThread);
+        timerRunning = true;
+        currentCycleStartTime = 0L;
+        bodyBackgroundColor = BACKGROUND_COLOR_NEUTRAL;
+        when(hyperlinkEvent.getEventType()).thenReturn(ACTIVATED);
+        when(hyperlinkEvent.getDescription()).thenReturn("command://stop");
+
+        HyperlinkListener hyperlinkListener = babystepsTimer.getHyperlinkListener();
+        hyperlinkListener.hyperlinkUpdate(hyperlinkEvent);
+
+        inOrder.verify(timerFrame).setAlwaysOnTop(false);
+        inOrder.verify(timerPane).setText(STOPPED_HTML);
+        inOrder.verify(timerFrame).repaint();
+        verifyZeroInteractions(timerThread);
+        assertThat(timerRunning, is(false));
         assertThat(currentCycleStartTime, is(0L));
         assertThat(bodyBackgroundColor, is(BACKGROUND_COLOR_NEUTRAL));
     }
